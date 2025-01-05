@@ -1,21 +1,23 @@
-import React, { useState } from 'react';
-import { Provider } from 'react-redux';
-import { store } from './store/store';
-import BillList from './components/BillList';
-import BillChart from './components/BillChart';
-import BillForm from './components/BillForm';
-import { useSelector, useDispatch } from 'react-redux';
-import { setFilteredCategory } from './store/billSlice';
-import { RootState } from './store/store';
-import { Plus, Filter } from 'lucide-react';
+import { useState } from "react";
+import { Provider } from "react-redux";
+import { store } from "./store/store";
+import BillList from "./components/BillList";
+import BillChart from "./components/BillChart";
+import BillForm from "./components/BillForm";
+import { useSelector, useDispatch } from "react-redux";
+import { setFilteredCategory } from "./store/billSlice";
+import { RootState } from "./store/store";
+import { Plus, Filter } from "lucide-react";
 
 function Dashboard() {
   const dispatch = useDispatch();
-  const { bills, filteredCategory } = useSelector((state: RootState) => state.bills);
+  const { bills, filteredCategory } = useSelector(
+    (state: RootState) => state.bills
+  );
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const categories = Array.from(new Set(bills.map(bill => bill.category)));
-  const totalAmount = bills.reduce((sum, bill) => sum + parseFloat(bill.amount), 0);
+  const categories = Array.from(new Set(bills.map((bill) => bill.category)));
+  const totalAmount = bills.reduce((sum, bill) => sum + bill.amount, 0);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -31,9 +33,7 @@ function Dashboard() {
               Add Bill
             </button>
           </div>
-          <p className="text-gray-600 mt-2">
-            Total Monthly Bills: ₹{totalAmount.toLocaleString()}
-          </p>
+          <p className="text-gray-600 mt-2">Total Monthly Budget: ₹50,000</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -51,13 +51,17 @@ function Dashboard() {
                 <div className="flex items-center space-x-2">
                   <Filter size={20} className="text-gray-500" />
                   <select
-                    value={filteredCategory || ''}
-                    onChange={(e) => dispatch(setFilteredCategory(e.target.value || null))}
+                    value={filteredCategory || ""}
+                    onChange={(e) =>
+                      dispatch(setFilteredCategory(e.target.value || null))
+                    }
                     className="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   >
                     <option value="">All Categories</option>
-                    {categories.map(category => (
-                      <option key={category} value={category}>{category}</option>
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -72,19 +76,26 @@ function Dashboard() {
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-600">Total Bills</p>
-                  <p className="text-2xl font-bold">₹{totalAmount.toLocaleString()}</p>
+                  <p className="text-2xl font-bold">
+                    ₹{totalAmount.toLocaleString()}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Categories</p>
                   <div className="mt-2 space-y-2">
-                    {categories.map(category => {
+                    {categories.map((category) => {
                       const categoryTotal = bills
-                        .filter(bill => bill.category === category)
-                        .reduce((sum, bill) => sum + parseFloat(bill.amount), 0);
+                        .filter((bill) => bill.category === category)
+                        .reduce((sum, bill) => sum + bill.amount, 0);
                       return (
-                        <div key={category} className="flex justify-between items-center">
+                        <div
+                          key={category}
+                          className="flex justify-between items-center"
+                        >
                           <span className="text-sm">{category}</span>
-                          <span className="font-medium">₹{categoryTotal.toLocaleString()}</span>
+                          <span className="font-medium">
+                            ₹{categoryTotal.toLocaleString()}
+                          </span>
                         </div>
                       );
                     })}
