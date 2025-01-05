@@ -14,32 +14,38 @@ export default function BillList() {
   );
   const [editingBill, setEditingBill] = useState<Bill | null>(null);
 
-  // Memoize filtered bills based on selected category
   const filteredBills = useMemo(() => {
     return filteredCategory
       ? bills.filter((bill) => bill.category === filteredCategory)
       : bills;
   }, [bills, filteredCategory]);
 
-  // Memoize optimal bills based on monthly budget
-  const optimalBillIds = useMemo(() => {
-    const sortedBills = [...bills].sort((a, b) => b.amount - a.amount);
-    let totalAmount = 0;
-    const optimalBills: Bill[] = [];
+  // Sort bills by amount in descending order
+  const sortedBills = useMemo(() => {
+    return [...filteredBills].sort((a, b) => b.amount - a.amount);
+  }, [filteredBills]);
 
-    // Select bills that fit within the monthly budget
+  // Find the minimum number of bills to pay without exceeding the budget
+  const billsToPay = useMemo(() => {
+    let totalAmount = 0;
+    const selectedBills: Bill[] = [];
+
     for (const bill of sortedBills) {
       if (totalAmount + bill.amount <= monthlyBudget) {
-        optimalBills.push(bill);
+        selectedBills.push(bill);
         totalAmount += bill.amount;
+      } else {
+        break; // Stop if adding another bill exceeds the budget
       }
     }
 
-    // Return only the IDs of optimal bills
-    return optimalBills.map((bill) => bill.id);
-  }, [bills, monthlyBudget]);
+    return selectedBills;
+  }, [sortedBills, monthlyBudget]);
 
-  // Show message if there are no filtered bills to display
+  const optimalBillIds = useMemo(() => {
+    return billsToPay.map((bill) => bill.id);
+  }, [billsToPay]);
+
   if (filteredBills.length === 0) {
     return <p className="text-gray-600 text-center">No bills to display.</p>;
   }
@@ -51,7 +57,7 @@ export default function BillList() {
           key={bill.id}
           className={`p-4 rounded-lg shadow-md ${
             optimalBillIds.includes(bill.id)
-              ? "bg-green-50 border-green-200"
+              ? "bg-green-50 border-green-200" // Highlight bills to pay
               : "bg-white"
           }`}
         >
@@ -84,7 +90,6 @@ export default function BillList() {
         </div>
       ))}
 
-      {/* Show BillForm when editing a bill */}
       {editingBill && (
         <BillForm
           initialBill={editingBill}
